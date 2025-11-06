@@ -1,0 +1,5 @@
+MANAGER,a_smith,pass,admin.smith@shop.com,
+MECHANIC,m_bob,pass,bob-mechanic@shop.com,
+MECHANIC,m_eric,pass,eirc-mechanic@shop.com,
+CUSTOMER,c_jane,pass,jane.doe@email.com,
+CUSTOMER,c_jeff,pass,jeff@email.com,
