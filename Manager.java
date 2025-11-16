@@ -14,7 +14,7 @@ public class Manager extends User{
         String woID = "WO-" + (int)(Math.random() * 10000);
         WorkOrder wo = new WorkOrder(woID, customer, vehicle, services);
         customer.addServiceHistory(wo);
-        System.out.println("Created " + wo); // This will still print to console
+        System.out.println("Created " + wo);
         return wo;
     }
     

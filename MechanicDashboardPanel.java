@@ -26,7 +26,6 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new GridLayout(4, 1, 5, 5));
 
-        // Initialize the class fields
         viewJobsButton = new JButton("1. View My Assigned Jobs");
         updateStatusButton = new JButton("2. Update Job Status");
         logHoursButton = new JButton("3. Log Hours");
@@ -49,16 +48,12 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
         logHoursButton.addActionListener(this);
         logoutButton.addActionListener(this);
         
-        // This initial call remains the same
         handleViewAssignedJobs();
     }
 
     @Override
     public void actionPerformed(ActionEvent e){
-        // Get the button that was clicked
         Object source = e.getSource();
-
-        // Check which button it was and call the correct helper
         if (source == viewJobsButton){
             handleViewAssignedJobs();
         } else if (source == updateStatusButton){
@@ -74,7 +69,6 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
     private void handleViewAssignedJobs(){
         outputArea.setText(" " + mechanic.getUsername() + "'s Assigned Jobs \n");
         
-        // This code assumes you have added the getAssignedWorkOrders() getter to Mechanic.java
         List<WorkOrder> assignedWorkOrders = mechanic.getAssignedWorkOrders();
         if (assignedWorkOrders.isEmpty()){
             outputArea.append("No jobs assigned.");
@@ -89,29 +83,77 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
         if (wo != null && wo.getAssignedMechanic() == mechanic){
             return wo;
         }
-        return null; // If not found or doesn't belong to them, return null
+        return null;
     }
 
     private void handleUpdateJobStatus(){
+        outputArea.append("\n Perform Service\n");
         String woID = JOptionPane.showInputDialog(this, "Enter Work Order ID:");
-        if (woID == null) return;
-        WorkOrder wo = findMechanicsWorkOrder(woID);
+        if (woID == null || woID.trim().isEmpty()){
+            return;
+        }
         
+        WorkOrder wo = shop.findWorkOrder(woID.trim());
         if (wo == null){
-            // Updated error message to be more accurate
-            JOptionPane.showMessageDialog(this, "Error: Work Order not found or not assigned to you.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: Work Order not found.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String status = JOptionPane.showInputDialog(this, "Enter new status (PENDING, IN_PROGRESS, DONE):");
-        if (status == null) return;
-        status = status.toUpperCase();
+        if (wo.getAssignedMechanic() == null || !wo.getAssignedMechanic().equals(mechanic)){
+            JOptionPane.showMessageDialog(this, "Error: You are not assigned to this Work Order.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        if (status.equals(WorkStatus.PENDING) || status.equals(WorkStatus.IN_PROGRESS) || status.equals(WorkStatus.DONE)){
-            mechanic.updateWorkOrderStatus(wo, status);
-            outputArea.append("WorkOrder " + wo.getWorkOrderID() + " status updated to " + status + "\n");
+        String serviceID = JOptionPane.showInputDialog(this, "Enter Service ID you performed:");
+        if (serviceID == null || serviceID.trim().isEmpty()){
+            return;
+        }
+        
+        Service serviceToPerform = null;
+        for (Service s : wo.getServicesRequested()){
+            if (s.getServiceID().equalsIgnoreCase(serviceID.trim())){
+                serviceToPerform = s;
+                break;
+            }
+        }
+        
+        if (serviceToPerform == null){
+            JOptionPane.showMessageDialog(this, "Error: Service not found in this Work Order.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (serviceToPerform.isCompleted()){
+             JOptionPane.showMessageDialog(this, "This service is already marked as complete.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String partNumber = JOptionPane.showInputDialog(this, "Enter Part Number used for '" + serviceToPerform.getDescription() + "':");
+        if (partNumber == null || partNumber.trim().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Part number is required.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        partNumber = partNumber.trim();
+
+        int quantityUsed = 0;
+        try{
+            String qtyStr = JOptionPane.showInputDialog(this, "Enter Quantity of " + partNumber + " used:");
+            if (qtyStr == null){
+                return;
+            }
+            quantityUsed = Integer.parseInt(qtyStr);
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid quantity. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        boolean success = mechanic.performJob(wo, serviceToPerform, partNumber, quantityUsed);
+
+        if (success){
+            outputArea.append("Successfully marked service '" + serviceToPerform.getDescription() + "' as complete on " + wo.getWorkOrderID() + ".\n");
+            JOptionPane.showMessageDialog(this, "Service updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } else{
-            JOptionPane.showMessageDialog(this, "Error: Invalid status. Must be PENDING, IN_PROGRESS, or DONE.", "Error", JOptionPane.ERROR_MESSAGE);
+            outputArea.append("Failed to update service '" + serviceToPerform.getDescription() + "' on " + wo.getWorkOrderID() + ".\n");
+            JOptionPane.showMessageDialog(this, "Failed to update service. Check output area for details.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -121,7 +163,6 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
         WorkOrder wo = findMechanicsWorkOrder(woID);
         
         if (wo == null){
-            // Updated error message to be more accurate
             JOptionPane.showMessageDialog(this, "Error: Work Order not found or not assigned to you.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }

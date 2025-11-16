@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException; // Import this
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
     private JButton genInvoiceButton;
     private JButton restockButton;
     private JButton reportButton;
+    private JButton createCustomerButton; // New button
     private JButton logoutButton;
 
     public ManagerDashboardPanel(Manager manager, AutoShop shop){
@@ -27,7 +29,7 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
 
         //Menu
         JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new GridLayout(6, 1, 5, 5));
+        menuPanel.setLayout(new GridLayout(7, 1, 5, 5)); // Changed to 7 rows
 
         // Initialize the class fields
         createWoButton = new JButton("1. Create Work Order");
@@ -35,6 +37,7 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
         genInvoiceButton = new JButton("3. Generate Invoice");
         restockButton = new JButton("4. Restock Inventory");
         reportButton = new JButton("5. Produce Report");
+        createCustomerButton = new JButton("6. Create Customer"); // New button
         logoutButton = new JButton("9. Logout");
 
         menuPanel.add(createWoButton);
@@ -42,6 +45,7 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
         menuPanel.add(genInvoiceButton);
         menuPanel.add(restockButton);
         menuPanel.add(reportButton);
+        menuPanel.add(createCustomerButton);
         menuPanel.add(logoutButton);
 
         add(menuPanel, BorderLayout.WEST);
@@ -56,6 +60,7 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
         genInvoiceButton.addActionListener(this);
         restockButton.addActionListener(this);
         reportButton.addActionListener(this);
+        createCustomerButton.addActionListener(this); // Add listener
         logoutButton.addActionListener(this);
     }
 
@@ -75,6 +80,8 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
             handleRestockInventory();
         } else if (source == reportButton){
             handleProduceReport();
+        } else if (source == createCustomerButton) { // Handle new button
+            handleCreateCustomer();
         } else if (source == logoutButton){
             handleLogout();
         }
@@ -239,6 +246,63 @@ public class ManagerDashboardPanel extends JPanel implements ActionListener{
         printInventoryToGui();
         
         outputArea.append(" End of Report \n");
+    }
+    
+    /**
+     * New method to handle creating a customer.
+     */
+    private void handleCreateCustomer() {
+        // 1. Get username
+        String username = JOptionPane.showInputDialog(this, "Enter new customer's username:");
+        if (username == null || username.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        username = username.trim();
+
+        // 2. Check if user already exists
+        if (shop.findUser(username) != null) {
+            JOptionPane.showMessageDialog(this, "Error: User '" + username + "' already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 3. Get password
+        JPasswordField passwordField = new JPasswordField();
+        int pwResult = JOptionPane.showConfirmDialog(this, passwordField, "Enter new password:",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (pwResult != JOptionPane.OK_OPTION) {
+            return; // User cancelled
+        }
+        String password = new String(passwordField.getPassword());
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Password cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 4. Get contact info
+        String contact = JOptionPane.showInputDialog(this, "Enter customer's contact info (e.g., email):");
+        if (contact == null || contact.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        contact = contact.trim();
+
+        // 5. Call AutoShop method to create account
+        try {
+            boolean success = shop.createCustomerAccount(username, password, contact);
+            
+            if (success) {
+                outputArea.append("Successfully created customer: " + username + "\n");
+                JOptionPane.showMessageDialog(this, "Customer account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                outputArea.append("Failed to create customer (user might already exist).\n");
+                JOptionPane.showMessageDialog(this, "Error: User already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+        } catch (IOException e) {
+            // Catch file writing errors
+            outputArea.append("CRITICAL ERROR: Failed to save new customer to file.\n" + e.getMessage() + "\n");
+            JOptionPane.showMessageDialog(this, "Error saving customer to file: " + e.getMessage(), "File Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void printInventoryToGui(){

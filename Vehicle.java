@@ -23,7 +23,6 @@ public abstract class Vehicle{
         this.serviceHistory = new ArrayList<>();
         owner.addVehicle(this);
     }
-    
 
     public abstract String getVehicleDetails();
     

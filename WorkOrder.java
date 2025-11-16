@@ -58,7 +58,7 @@ public class WorkOrder{
     }
 
 
-    public void updateStatus(String status){ // Changed from WorkStatus to String
+    public void updateStatus(String status){
         this.status = status;
     }
 
@@ -68,7 +68,7 @@ public class WorkOrder{
     
     public void assignMechanic(Mechanic m){
         this.assignedMechanic = m;
-        this.status = WorkStatus.IN_PROGRESS; // Use string constant
+        this.status = WorkStatus.IN_PROGRESS;
     }
 
     //Getters 

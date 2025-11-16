@@ -1,4 +1,6 @@
 Car,VIN123,Honda,Civic,2018,COMBUSTION,c_jane,Sedan
-Truck,VIN456,Ford,F-150,2020,COMBUSTION,c_jane,10000
+Truck,VIN456,Ford,F-150,2020,COMBUSTION,c_jane,10000.0
 Motorbike,VIN789,Yamaha,MT-07,2022,COMBUSTION,c_jane,689
 Car,VIN111,BYD,AH892,2025,ELECTRIC,c_jeff,Sedan
+Car,VIN000,Toyota,Camry,10,COMBUSTION,c_Harry,Sedan
+Car,VIN765,Toyota,Camry,5,ELECTRIC,c_Harry,Sedan

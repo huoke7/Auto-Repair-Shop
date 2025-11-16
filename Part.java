@@ -31,14 +31,16 @@ public class Part{
         return false;
     }
 
-
     public String getPartNumber(){ 
         return partNumber; 
     }
+
     public String getDescription(){ 
-        return description; }
+        return description;
+    }
     public int getStockLevel(){ return stockLevel; 
     }
+    
     public double getPrice(){ 
         return price; 
     }

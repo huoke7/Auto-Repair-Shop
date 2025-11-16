@@ -1,3 +1,11 @@
+/**
+ * Auto Retair shop program
+ * 2025 Nov. 14
+ * Author Eric Huo, Eric Chen
+ * The program is use for a car repair shop. Provide manager, mechanic and customer to log in.
+ */
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.io.BufferedReader;
@@ -7,7 +15,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
 
 /**
  * Main class
@@ -18,30 +28,15 @@ public class AutoShop{
     private List<Service> serviceCatalog = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private List<WorkOrder> allWorkOrders = new ArrayList<>();
+    private List<Vehicle> vehicles = new ArrayList<>();
     
     private static final String USERS_FILE = "users.csv"; 
     private static final String PARTS_FILE = "parts.csv";
     private static final String SERVICES_FILE = "services.csv";
     private static final String VEHICLES_FILE = "vehicles.csv";
 
-    public static void main(String[] args){
-        System.out.println("Auto Shop Management System Starting");
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run(){
-                AutoShop shop = new AutoShop();
-                shop.loadDataFromFiles();
-                new LoginFrame(shop); 
-            }
-        });
-        
-        System.out.println("Main thread is finishing. GUI is now running.");
-    }
-
-
-
     /**
-     * username/password one time.
-     *
+     * username/password
      * @return User object on success, or null on failure.
      */
     public User attemptLogin(String username, String password){
@@ -60,7 +55,6 @@ public class AutoShop{
 
     /**
      * This method is called by LoginFrame after a successful login.
-     * It's responsible for opening the correct dashboard (Customer, Manager, or Mechanic).
      */
     public void showUserDashboard(User loggedInUser){
         JFrame mainFrame = new JFrame("Auto Shop Management System");
@@ -107,6 +101,12 @@ public class AutoShop{
         }
     }
 
+    /**
+     * This method is used to load users information
+     * @param filename
+     * @throws IOException
+     */
+
     private void loadUsers(String filename) throws IOException{
         try (BufferedReader br = new BufferedReader(new FileReader(filename))){
             String line;
@@ -133,6 +133,12 @@ public class AutoShop{
         }
     }
 
+    /**
+     * This method is used to load parts information
+     * @param filename
+     * @throws IOException
+     */
+    
     private void loadParts(String filename) throws IOException{
         try (BufferedReader br = new BufferedReader(new FileReader(filename))){
             String line;
@@ -148,9 +154,14 @@ public class AutoShop{
                     System.err.println("Skipping bad part data: " + line);
                 }
             }
-            inventory.printStock();
         }
     }
+
+    /**
+     * This method is used to load services information
+     * @param filename
+     * @throws IOException
+     */
 
     private void loadServices(String filename) throws IOException{
         try (BufferedReader br = new BufferedReader(new FileReader(filename))){
@@ -185,6 +196,12 @@ public class AutoShop{
         }
     }
 
+    /**
+     * This method is used to load vehicles information
+     * @param filename
+     * @throws IOException
+     */
+
     private void loadVehicles(String filename) throws IOException{
         try (BufferedReader br = new BufferedReader(new FileReader(filename))){
             String line;
@@ -204,21 +221,28 @@ public class AutoShop{
                     } else{
                         extra = ""; 
                     }
-
                     User owner = findUser(ownerUsername);
                     if (owner instanceof Customer){
                         Customer customer = (Customer) owner;
+                        
+                        Vehicle newVehicle = null; 
+
                         switch (type){
                             case "Car":
-                                new Car(vin, make, model, year, powertrain, customer, extra);
+                                newVehicle = new Car(vin, make, model, year, powertrain, customer, extra);
                                 break;
                             case "Truck":
-                                new Truck(vin, make, model, year, powertrain, customer, Double.parseDouble(extra), 0);
+                                newVehicle = new Truck(vin, make, model, year, powertrain, customer, Double.parseDouble(extra), 0);
                                 break;
                             case "Motorbike":
-                                new Motorbike(vin, make, model, year, powertrain, customer, Integer.parseInt(extra));
+                                newVehicle = new Motorbike(vin, make, model, year, powertrain, customer, Integer.parseInt(extra));
                                 break;
                         }
+
+                        if (newVehicle != null) {
+                            this.vehicles.add(newVehicle); // Add to the shop's main list
+                        }
+                        
                     } else{
                         System.err.println("Could not find customer " + ownerUsername + " for vehicle " + vin);
                     }
@@ -229,7 +253,59 @@ public class AutoShop{
         }
     }
 
+    public void addVehicle(Vehicle vehicle) {
+        if (this.vehicles == null) {
+            this.vehicles = new ArrayList<>();
+        }
+        this.vehicles.add(vehicle);
+    }
+    
+    /**
+     * Saves the current list of all vehicles back to the vehicles.csv file.
+     * This will overwrite the existing file.
+     */
+    public void saveVehiclesToFile() {
+        try (PrintWriter out = new PrintWriter(new FileWriter(VEHICLES_FILE))) {
 
+            for (Vehicle v : this.vehicles) {
+                String type = "";
+                String extra = "";
+                String vin = v.getVin();
+                String make = v.getMake();
+                String model = v.getModel();
+                int year = v.getYear();
+                String powertrain = v.getPowertrain();
+                String ownerUsername = v.getOwner().getUsername();
+
+                if (v instanceof Car) {
+                    type = "Car";
+                    extra = ((Car) v).getBodyType();
+                } else if (v instanceof Truck) {
+                    type = "Truck";
+                    extra = String.valueOf(((Truck) v).getTowingCapacity());
+                } else if (v instanceof Motorbike) {
+                    type = "Motorbike";
+                    extra = String.valueOf(((Motorbike) v).getEngineDisplacement());
+                }
+
+                String csvLine = String.join(",", 
+                    type, vin, make, model, String.valueOf(year), 
+                    powertrain, ownerUsername, extra
+                );
+                
+
+                out.println(csvLine);
+            }
+            System.out.println("Successfully saved " + this.vehicles.size() + " vehicles to " + VEHICLES_FILE);
+
+        } catch (IOException e) {
+            System.err.println("Error saving vehicles to file: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, 
+                "CRITICAL ERROR: Could not save vehicle data to file.\n" + e.getMessage(), 
+                "Save Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     public User findUser(String username){
         for (User u : users){
@@ -238,6 +314,40 @@ public class AutoShop{
         return null;
     }
     
+    /**
+     * Creates a new customer account
+     * @param username The new customer's username.
+     * @param password The new customer's password.
+     * @param contactInfo The new customer's contact info (email).
+     * @return true if successful, false if user already exists.
+     * @throws IOException if there is an error writing to the file.
+     */
+
+    public boolean createCustomerAccount(String username, String password, String contactInfo) throws IOException {
+        if (findUser(username) != null) {
+            System.out.println("Error: User " + username + " already exists.");
+            return false;
+        }
+
+        String csvLine = String.join(",", "CUSTOMER", username, password, contactInfo);
+        try (FileWriter fw = new FileWriter(USERS_FILE, true);
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
+            
+            out.println(csvLine);
+            
+        } catch (IOException e) {
+            System.err.println("Error appending user to file: " + e.getMessage());
+            throw e;
+        }
+
+        Customer newCustomer = new Customer(username, password, contactInfo);
+        this.users.add(newCustomer);
+
+        System.out.println("Successfully created new customer: " + username);
+        return true;
+    }
+
     public Service findService(String serviceID){
         for (Service s : serviceCatalog){
             if (s.getServiceID().equals(serviceID)) return s;
@@ -279,14 +389,35 @@ public class AutoShop{
         return null;
     }
 
-    
     public Inventory getInventory(){
         return inventory;
     }
+
     public List<WorkOrder> getAllWorkOrders(){
-        return allWorkOrders;}
+        return allWorkOrders;
+    }
+    
     public List<Service> getServiceCatalog(){
         return serviceCatalog;
+    }
+
+    public void startApp(){
+        AutoShop shop = new AutoShop();
+        shop.loadDataFromFiles();
+        new LoginFrame(shop); 
+    }
+
+
+    ////// void main
+    public static void main(String[] args){
+    System.out.println("Auto Shop Management System Starting");
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run(){
+                AutoShop shop = new AutoShop();
+                shop.loadDataFromFiles();
+                new LoginFrame(shop); 
+            }
+        });
     }
 
 }

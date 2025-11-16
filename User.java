@@ -1,3 +1,4 @@
+
 /*
  * Abstract class.
  */
@@ -13,7 +14,6 @@ public abstract class User{
         this.role = role;
         this.contactInfo = contactInfo;
     }
-
 
     public boolean checkPassword(String passwordAttempt){
         return this.password.equals(passwordAttempt);

@@ -5,7 +5,7 @@ public class Customer extends User{
     private List<Vehicle> vehicles;
     private List<WorkOrder> serviceHistory;
     private List<Invoice> invoices;
-
+    // constructor
     public Customer(String username, String password, String contactInfo){
         super(username, password, Role.CUSTOMER, contactInfo);
         this.vehicles = new ArrayList<>();
@@ -24,11 +24,9 @@ public class Customer extends User{
             System.out.println("This invoice is already paid.");
         }
     }
+
     
-    
-    public void addVehicle(Vehicle v){
-        this.vehicles.add(v);
-    }
+
     
     public void addServiceHistory(WorkOrder wo){
         this.serviceHistory.add(wo);
@@ -45,4 +43,12 @@ public class Customer extends User{
     public List<Invoice> getInvoices(){
         return invoices;
     }
+
+    public void addVehicle(Vehicle vehicle) {
+        if (this.vehicles == null) {
+            this.vehicles = new ArrayList<>();
+        }
+        this.vehicles.add(vehicle);
+    }
+
 }

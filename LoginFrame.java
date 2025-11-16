@@ -13,18 +13,16 @@ public class LoginFrame extends JFrame{
     public LoginFrame(AutoShop shop){
         this.shop = shop;
 
-        //Window Setup 
+        //Window Setup
         setTitle("Auto Shop Login");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         setLocationRelativeTo(null);
 
-        //  Create a Panel to hold components 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(3, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        //  Add Components 
         panel.add(new JLabel("Username:"));
         usernameField = new JTextField();
         panel.add(usernameField);
@@ -33,13 +31,12 @@ public class LoginFrame extends JFrame{
         passwordField = new JPasswordField();
         panel.add(passwordField);
 
-        // Add an empty placeholder
         panel.add(new JLabel("")); 
         
         loginButton = new JButton("Login");
         panel.add(loginButton);
 
-        //  Add the panel to the frame 
+        //  Add the panel to the frame
         add(panel);
 
         loginButton.addActionListener(new ActionListener(){
@@ -49,7 +46,7 @@ public class LoginFrame extends JFrame{
             }
         });
 
-        //  Make the window visible 
+        //  Make the window visible
         setVisible(true);
     }
 
@@ -62,16 +59,13 @@ public class LoginFrame extends JFrame{
 
         User loggedInUser = shop.attemptLogin(username, password);
 
-        if (loggedInUser != null){//success
+        if (loggedInUser != null){
             this.dispose(); 
             
             shop.showUserDashboard(loggedInUser);
             
         } else{
-            JOptionPane.showMessageDialog(this, 
-                "Invalid username or password.", 
-                "Login Failed", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
