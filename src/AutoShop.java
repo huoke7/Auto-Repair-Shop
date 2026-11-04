@@ -30,10 +30,10 @@ public class AutoShop{
     private List<WorkOrder> allWorkOrders = new ArrayList<>();
     private List<Vehicle> vehicles = new ArrayList<>();
     
-    private static final String USERS_FILE = "users.csv"; 
-    private static final String PARTS_FILE = "parts.csv";
-    private static final String SERVICES_FILE = "services.csv";
-    private static final String VEHICLES_FILE = "vehicles.csv";
+    private static final String USERS_FILE = "data/users.csv"; 
+    private static final String PARTS_FILE = "data/parts.csv";
+    private static final String SERVICES_FILE = "data/services.csv";
+    private static final String VEHICLES_FILE = "data/vehicles.csv";
 
     /**
      * username/password
