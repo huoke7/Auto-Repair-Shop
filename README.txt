@@ -41,11 +41,13 @@ How to Run:
 Each data are storted in each CSV file.
 
 User information:
-MANAGER,a_smith,pass,admin.smith@shop.com,
+MANAGER,a_eric,pass,admin.smith@shop.com,
 MECHANIC,m_bob,pass,bob-mechanic@shop.com,
-MECHANIC,m_eric,pass,eirc-mechanic@shop.com,
-CUSTOMER,c_jane,pass,jane.doe@email.com,
-CUSTOMER,c_jeff,pass,jeff@email.com,
+MECHANIC,m_ken,pass,ken-mechanic@shop.com,
+CUSTOMER,c_jane,pass,jane.doe@gmail.com,
+CUSTOMER,c_jeff,pass,jeff@gmail.com,
+CUSTOMER,c_harry,pass,harry@gmail.com,
+CUSTOMER,c_joe,pass,joe@gmail.com
 
 Car information:
 Car,VIN123,Honda,Civic,2018,COMBUSTION,c_jane,Sedan
@@ -63,3 +65,7 @@ P-001,Oil Filter,50,15.00
 P-002,Synthetic Oil (5L),30,45.00
 P-003,Brake Pad Set,20,80.00
 P-004,Windshield Wiper,10,25.00
+
+
+
+

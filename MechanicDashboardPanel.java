@@ -147,10 +147,20 @@ public class MechanicDashboardPanel extends JPanel implements ActionListener{
         }
         
         boolean success = mechanic.performJob(wo, serviceToPerform, partNumber, quantityUsed);
-
         if (success){
             outputArea.append("Successfully marked service '" + serviceToPerform.getDescription() + "' as complete on " + wo.getWorkOrderID() + ".\n");
-            JOptionPane.showMessageDialog(this, "Service updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            mechanic.completeWorkOrder(wo);
+
+            if (wo.getStatus().equals(WorkStatus.DONE)) {
+                outputArea.append("All services are complete. Work Order " + wo.getWorkOrderID() + " is now marked as DONE.\n");
+                JOptionPane.showMessageDialog(this, 
+                    "Service updated! All services for " + wo.getWorkOrderID() + " are now complete.", 
+                    "Work Order Done", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Service updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+
         } else{
             outputArea.append("Failed to update service '" + serviceToPerform.getDescription() + "' on " + wo.getWorkOrderID() + ".\n");
             JOptionPane.showMessageDialog(this, "Failed to update service. Check output area for details.", "Error", JOptionPane.ERROR_MESSAGE);
